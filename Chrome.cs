@@ -103,6 +103,11 @@ class Chrome
         Driver.SwitchTo().ParentFrame();
     }
 
+    public void SwitchToDefaultContent()
+    {
+        Driver.SwitchTo().DefaultContent();
+    }
+
     public string UserAgent()
     {
         var path = Environment.CurrentDirectory + @"\useragent.txt";
@@ -215,10 +220,17 @@ class Chrome
             Driver.SwitchTo().Window(Driver.WindowHandles.Last());
     }
 
-    public bool Wait(String selector, int seconds, int time = 1)
+    public bool Wait(string selector, int seconds, int time = 1)
     {
         By by = By.CssSelector(selector);
         return Wait(by, seconds, time);
+    }
+
+
+    public bool Wait(string selector, int pos, string action, int seconds, int time = 1)
+    {
+        By by = By.CssSelector(selector);
+        return Wait(by, pos, action, seconds, time);
     }
 
     public bool Wait(By by, int seconds, int time = 1)
@@ -401,9 +413,17 @@ class Chrome
             {
                 var elm = Driver.FindElements(by)[pos];
                 if(isClear) elm.Clear();
-                foreach (var character in text) {
-                    elm.SendKeys(character.ToString());
-                    Thread.Sleep(speed);
+                if (speed > 0)
+                {
+                    foreach (var character in text)
+                    {
+                        elm.SendKeys(character.ToString());
+                        Thread.Sleep(speed);
+                    }
+                }
+                else
+                {
+                    elm.SendKeys(text);
                 }
                 Thread.Sleep(1500);
                 if (isSubmit) elm.SendKeys(Keys.Enter);
@@ -530,6 +550,11 @@ class Chrome
         return Driver.FindElements(by);
     }
 
+    public IWebElement FindElement(string selector)
+    {
+        return Driver.FindElement(By.CssSelector(selector));
+    }
+
     public IWebElement FindElement(By by)
     {
         return Driver.FindElement(by);
@@ -544,6 +569,15 @@ class Chrome
     public void Scroll(int pixel = 500)
     {
         Js.ExecuteScript("window.scrollBy(0,"+ pixel + ")");
+    }
+
+    public void DragAndDrop(string source, string target, int pos = 0)
+    {
+        actions = new Actions(Driver);
+        var elmSource = Driver.FindElement(By.CssSelector(source));
+        var elmTarget = Driver.FindElements(By.CssSelector(target))[pos];
+        actions.ClickAndHold(elmSource).MoveToElement(elmTarget,0,0, MoveToElementOffsetOrigin.Center).Release().Build().Perform();
+        actions = new Actions(Driver);
     }
 }
 

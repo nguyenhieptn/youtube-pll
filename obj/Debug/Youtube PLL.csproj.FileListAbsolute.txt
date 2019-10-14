@@ -1,7 +1,6 @@
 D:\JaxTeam\Youtube PLL\bin\Debug\Youtube PLL.exe.config
 D:\JaxTeam\Youtube PLL\bin\Debug\Youtube PLL.exe
 D:\JaxTeam\Youtube PLL\bin\Debug\Youtube PLL.pdb
-D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.csprojAssemblyReference.cache
 D:\JaxTeam\Youtube PLL\obj\Debug\Youtube_PLL.Properties.Resources.resources
 D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.csproj.GenerateResource.cache
 D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.csproj.CoreCompileInputs.cache

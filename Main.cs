@@ -9,11 +9,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Keys = OpenQA.Selenium.Keys;
 
 namespace Youtube_PLL
 {
     public partial class Main : Form
     {
+        int pllCreated = 0;
         public Main()
         {
             InitializeComponent();
@@ -39,49 +41,40 @@ namespace Youtube_PLL
                 var path = profileLb.Text;
                 if (!isMulti)
                 {
-                    var kws = KeywordsTb.Text;
-                    var keywords = kws.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).ToList<string>();
-                    CreatePlaylist(path, keywords);
+                    var keyword = KeywordTb.Text;
+                    CreatePlaylist(path, keyword);
                 }
                 else
                 {
                     var paths = Directory.GetDirectories(path).ToList();
                     var stop = false;
                     while (!stop) {
-                        var kws = KeywordsTb.Text;
-                        if (string.IsNullOrEmpty(kws)) break;
-                        var keywords = kws.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).ToList<string>();
+                        var keyword = KeywordTb.Text;
+                        if (string.IsNullOrEmpty(keyword)) break;
+                        Log(paths.Count + " Profiles");
                         if (paths.Count() == 0) break;
                         var p = paths.First();
+                        Log("Start Profile: "+p);
                         paths.RemoveAt(0);
                         if (runBackCb.Checked)
                         {
                             paths.Add(p);
                         }
                         if (path.Count() == 0) stop = true;
-                        var num = int.Parse(NumPllTb.Text);
-                        var key = keywords.Skip(0).Take(num).ToList();
-                        var newKeywords = keywords.Skip(num).Take(keywords.Count - num);
-                        KeywordsTb.Invoke(new Action(() =>
-                        {
-                            KeywordsTb.Text = String.Join("\r\n", newKeywords);
-                        }));
-                        Keywords2Tb.Invoke(new Action(() =>
-                        {
-                            Keywords2Tb.Text = Keywords2Tb.Text + "\r\n" + String.Join("\r\n", key);
-                        }));
-                        CreatePlaylist(p, key);
+                        CreatePlaylist(p, keyword);
                         Thread.Sleep(5000);
                     }
                 }
-        }));
+            }));
+            thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
         }
 
-        private void CreatePlaylist(string path, List<string> keywords)
+        private void CreatePlaylist(string path, string keyword)
         {
             try
             {
+                var num = int.Parse(NumPllTb.Text);
                 Chrome chrome = new Chrome(path);
                 chrome.GoToURL("https://www.youtube.com/");
                 Console.WriteLine(chrome.CountElements("button#avatar-btn"));
@@ -92,16 +85,10 @@ namespace Youtube_PLL
                     return;
                 }
 
-                var videosText = videosTb.Text;
-                var videos = new List<string>();
-                if (!string.IsNullOrEmpty(videosText))
+                var videoId = videoTb.Text;
+                for (var i = 0; i < num; i++)
                 {
-                    videos = videosText.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).ToList<string>();
-                }
-                for (var i = 0; i < keywords.Count; i++)
-                {
-                    var keyword = keywords[i];
-                    CreateOnePlaylist(chrome, keyword, videos);
+                    CreateOnePlaylist(chrome, keyword, videoId);
                 }
                 chrome.Close();
                 chrome.Quit();
@@ -112,63 +99,111 @@ namespace Youtube_PLL
             }
         }
 
-        private void CreateOnePlaylist(Chrome chrome, string keyword, List<string> videos)
+        private void CreateOnePlaylist(Chrome chrome, string keyword, string videoId)
         {
             chrome.GoToURL("https://www.youtube.com/view_all_playlists");
             chrome.Click("#vm-playlist-div");
             chrome.SendKeys("#vm-create-playlist-dialog .create-playlist-section input[name=\"n\"]", keyword,speed:50);
             Thread.Sleep(5000);
+            pllListTb.AppendText(Environment.NewLine + chrome.Url);
+            //Log(chrome.Url);
             chrome.Click("#owner-container #button");
-            var url = chrome.Url;
-            chrome.GoToURL(url + "&disable_polymer=1");
-            Uri theUri = new Uri(url);
-            var query = theUri.Query;
+            if (chrome.Url.IndexOf("disable_polymer") == -1)
+            {
+                var url = chrome.Url;
+                chrome.GoToURL(url + "&disable_polymer=true");
+            }
 
             Thread.Sleep(1500);
+            chrome.Click("#gh-playlist-add-video");
+            chrome.Wait("iframe.picker-frame", 20);
+            chrome.SwitchToFrame("iframe.picker-frame");
+            chrome.Wait("#doclist input", 0, "Displayed", 20 );
+            chrome.SendKeys("#doclist input", keyword);
+            Thread.Sleep(3000);
+            var check = chrome.Wait("table[role=\"listbox\"]", 20);
+            if (!check) MessageBox.Show("No videos found!");
+            int numVideo = int.Parse(numVideoTb.Text);
+            int count = 0;
+            int ignore = 3;
+            int i = 0;
             string description = "";
-            if (videos.Count() == 0)
-            {
-                chrome.Click("#gh-playlist-add-video");
-                chrome.Wait("iframe.picker-frame", 5);
-                chrome.SwitchToFrame("iframe.picker-frame");
-                chrome.SendKeys("#doclist input", keyword, speed:50);
-                Thread.Sleep(3000);
-                chrome.Wait("table[role=\"listbox\"]", 5000);
-                int numVideo = int.Parse(numVideoTb.Text);
-                int count = 0;
-                int ignore = 3;
-                int i = 0;
-                while(count < numVideo) {
-                    if (ignore >= 0)
+            string newTitle = "";
+            var random = new Random();
+            while(count < numVideo) {
+                if (i>10 && ignore > 0)
+                {
+                    int rand = random.Next(i, 100);
+                    if (rand % 9 > 3)
                     {
-                        int rand = new Random().Next(1, 100);
-                        if (rand % 10 <= 3)
-                        {
-                            i++;
-                            ignore--;
-                            continue;
-                        }
+                        ignore--;
+                        i++;
+                        continue;
                     }
-                    chrome.Click("table[role=\"listbox\"] div[role=\"option\"]", i);
-                    var id = chrome.FindElements("table[role=\"listbox\"] div[role=\"option\"]")[i].GetAttribute("aria-labelledby");
-                    description += chrome.getText("table[role=\"listbox\"] div[role=\"option\"] div[id=\"" + id + "\"]") + Environment.NewLine;
-                    var str = chrome.getText("table[role=\"listbox\"] div[role=\"option\"] div[id=\"" + id + "\"]").Split(new string[] { "|", "-" }, StringSplitOptions.None)[0].Trim();
-                    Log(str);
-                    if (i % 10 == 0) chrome.Scroll();
-                    Thread.Sleep(500);
-                    i++;
-                    count++;
                 }
-            }
-            else
-            {
-
+                chrome.Click("table[role=\"listbox\"] div[role=\"option\"]", i);
+                var id = chrome.FindElements("table[role=\"listbox\"] div[role=\"option\"]")[i].GetAttribute("aria-labelledby");
+                if (count <= int.Parse(descriptionTb.Text))
+                    description += chrome.getText("table[role=\"listbox\"] div[role=\"option\"] div[id=\"" + id + "\"]") + Environment.NewLine;
+                if (i == pllCreated)
+                    newTitle = chrome.getText("table[role=\"listbox\"] div[role=\"option\"] div[id=\"" + id + "\"]");
+                count++;
+                if (i % 10 == 0) chrome.Scroll();
+                Thread.Sleep(500);
+                i++;
+                continue;
             }
             chrome.Click("#doclist [role=\"button\"][id=\"picker:ap:2\"]");
             Thread.Sleep(3000);
+            chrome.SwitchToDefaultContent();
+            chrome.Click(".pl-header-title");
+            Clipboard.SetText(newTitle);
+            chrome.FindElement("input[name=\"playlist_title\"]").Clear();
+            chrome.FindElement("input[name=\"playlist_title\"]").SendKeys(Keys.Control + "v");
+            chrome.FindElement("input[name=\"playlist_title\"]").SendKeys(Keys.Enter);
+            //chrome.SendKeys("input[name=\"playlist_title\"]", newTitle);
+            Thread.Sleep(3000);
             chrome.Click(".pl-header-add-description-button");
-            chrome.SendKeys(".pl-header-description-editor-form textarea", description, isSubmit:false);
-            chrome.Click("body");
+            Clipboard.SetText(description);
+            chrome.FindElement(".pl-header-description-editor-form textarea").SendKeys(Keys.Control + "v");
+            //chrome.SendKeys(".pl-header-description-editor-form textarea", description, isSubmit:false);
+            Thread.Sleep(1000);
+            chrome.Click("#playlist-settings-editor button");
+            Thread.Sleep(1500);
+            chrome.Click("select.playlist-video-order-input[name=\"sort_order\"]");
+            chrome.Click("select.playlist-video-order-input[name=\"sort_order\"] option[value=\"3\"]");
+            chrome.Click("button.save-button");
+            Thread.Sleep(3000);
+            chrome.Click("#playlist-settings-editor button");
+            Thread.Sleep(1500);
+            chrome.Click("select.playlist-video-order-input[name=\"sort_order\"]");
+            chrome.Click("select.playlist-video-order-input[name=\"sort_order\"] option[value=\"0\"]");
+            Thread.Sleep(1000);
+            chrome.Click("input[name=\"add_to_top\"]");
+            chrome.Click("button.save-button");
+            Thread.Sleep(3000);
+            if (!string.IsNullOrEmpty(videoId))
+            {
+                string videoUrl = "https://www.youtube.com/watch?v=" + videoId;
+                chrome.Click("#gh-playlist-add-video");
+                chrome.Wait("iframe.picker-frame", 10);
+                chrome.SwitchToFrame("iframe.picker-frame");
+                chrome.TryClick("#doclist [id=\":6\"]");
+                chrome.Wait("#doclist input",1, "Displayed" ,10);
+                Clipboard.SetText(videoUrl);
+                chrome.FindElements("#doclist input")[1].SendKeys(Keys.Control + "v");
+                Thread.Sleep(3000);
+                chrome.Click("#doclist [role=\"button\"][id=\"picker:ap:2\"]");
+                Thread.Sleep(3000);
+                chrome.SwitchToDefaultContent();
+                chrome.Wait("[data-video-id=\"" + videoId + "\"]", 10);
+                Log(chrome.CountElements("[data-video-id=\"" + videoId + "\"] td.yt-uix-dragdrop-drag-handle"));
+                Log(chrome.CountElements("#pl-video-table tr"));
+                chrome.DragAndDrop("[data-video-id=\""+videoId+"\"] td.yt-uix-dragdrop-drag-handle", "#pl-video-table tr", (int.Parse(videoPosTb.Text) - 1));
+                Thread.Sleep(3000);
+            }
+
+            pllCreated++;
         }
 
         private void OpenProfile()
@@ -219,7 +254,6 @@ namespace Youtube_PLL
         private void Log(dynamic str)
         {
             str = str.ToString();
-            Console.WriteLine(str);
             try
             {
                 logRtb.Invoke(new Action(() =>
@@ -231,6 +265,7 @@ namespace Youtube_PLL
                     }
                     str = DateTime.Now.ToString("dd/MM/yy HH:mm:ss tt") + "\t" + str + Environment.NewLine;
                     logRtb.Text = str + logRtb.Text;
+                    File.AppendAllText(Environment.CurrentDirectory + @"\log.txt", str);
                 }));
             }
             catch
