@@ -60,6 +60,7 @@
             this.KeywordTb = new MetroFramework.Controls.MetroTextBox();
             this.descriptionTb = new MetroFramework.Controls.MetroTextBox();
             this.metroLabel6 = new MetroFramework.Controls.MetroLabel();
+            this.canAddVideoCb = new MetroFramework.Controls.MetroCheckBox();
             this.metroTabControl1.SuspendLayout();
             this.metroTabPage2.SuspendLayout();
             this.metroTabPage1.SuspendLayout();
@@ -116,6 +117,7 @@
             // 
             // metroTabPage2
             // 
+            this.metroTabPage2.Controls.Add(this.canAddVideoCb);
             this.metroTabPage2.Controls.Add(this.descriptionTb);
             this.metroTabPage2.Controls.Add(this.metroLabel6);
             this.metroTabPage2.Controls.Add(this.KeywordTb);
@@ -396,7 +398,7 @@
             // metroLabel5
             // 
             this.metroLabel5.AutoSize = true;
-            this.metroLabel5.Location = new System.Drawing.Point(13, 192);
+            this.metroLabel5.Location = new System.Drawing.Point(13, 226);
             this.metroLabel5.Name = "metroLabel5";
             this.metroLabel5.Size = new System.Drawing.Size(48, 19);
             this.metroLabel5.TabIndex = 40;
@@ -413,9 +415,9 @@
             this.pllListTb.BackColor = System.Drawing.Color.GhostWhite;
             this.pllListTb.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.pllListTb.ImeMode = System.Windows.Forms.ImeMode.NoControl;
-            this.pllListTb.Location = new System.Drawing.Point(110, 192);
+            this.pllListTb.Location = new System.Drawing.Point(110, 226);
             this.pllListTb.Name = "pllListTb";
-            this.pllListTb.Size = new System.Drawing.Size(280, 266);
+            this.pllListTb.Size = new System.Drawing.Size(280, 232);
             this.pllListTb.TabIndex = 10;
             this.pllListTb.Text = "";
             this.pllListTb.WordWrap = false;
@@ -558,6 +560,16 @@
         " stop");
             this.metroLabel6.WrapToLine = true;
             // 
+            // canAddVideoCb
+            // 
+            this.canAddVideoCb.AutoSize = true;
+            this.canAddVideoCb.Location = new System.Drawing.Point(13, 196);
+            this.canAddVideoCb.Name = "canAddVideoCb";
+            this.canAddVideoCb.Size = new System.Drawing.Size(255, 15);
+            this.canAddVideoCb.TabIndex = 43;
+            this.canAddVideoCb.Text = "Collaborators can add videos to this playlist ";
+            this.canAddVideoCb.UseSelectable = true;
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -569,6 +581,7 @@
             this.MinimumSize = new System.Drawing.Size(810, 547);
             this.Name = "Main";
             this.Text = "Form1";
+            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Main_FormClosed);
             this.metroTabControl1.ResumeLayout(false);
             this.metroTabPage2.ResumeLayout(false);
             this.metroTabPage2.PerformLayout();
@@ -611,6 +624,7 @@
         private MetroFramework.Controls.MetroTextBox videoPosTb;
         private MetroFramework.Controls.MetroTextBox descriptionTb;
         private MetroFramework.Controls.MetroLabel metroLabel6;
+        private MetroFramework.Controls.MetroCheckBox canAddVideoCb;
     }
 }
 

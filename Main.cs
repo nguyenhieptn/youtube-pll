@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -74,39 +75,62 @@ namespace Youtube_PLL
         {
             try
             {
-                var num = int.Parse(NumPllTb.Text);
                 Chrome chrome = new Chrome(path);
                 chrome.GoToURL("https://www.youtube.com/");
                 Console.WriteLine(chrome.CountElements("button#avatar-btn"));
                 if (chrome.CountElements("button#avatar-btn") == 0)
                 {
+                    Log("Please login youtube");
+                    MessageBox.Show("Please login youtube");
                     chrome.Close();
                     chrome.Quit();
                     return;
                 }
 
                 var videoId = videoTb.Text;
+                var num = int.Parse(NumPllTb.Text);
+                Log("Create " + num + " playlists.");
                 for (var i = 0; i < num; i++)
                 {
-                    CreateOnePlaylist(chrome, keyword, videoId);
+                    Log("Create playlist " + (i+1));
+                    bool created = CreateOnePlaylist(chrome, keyword, videoId);
+                    if (!created) break;
                 }
                 chrome.Close();
                 chrome.Quit();
             }
             catch (Exception e)
             {
+                Log(e.Message);
                 MessageBox.Show(e.Message);
             }
         }
 
-        private void CreateOnePlaylist(Chrome chrome, string keyword, string videoId)
+        private bool CreateOnePlaylist(Chrome chrome, string keyword, string videoId)
         {
             chrome.GoToURL("https://www.youtube.com/view_all_playlists");
+            chrome.Wait("#vm-playlist-div", 20);
+            int createdEntries = 5;
+        CreatePlaylist:
+            Log("Create new playlist");
             chrome.Click("#vm-playlist-div");
+            chrome.Wait("#vm-create-playlist-dialog .create-playlist-section input[name=\"n\"]", 20);
             chrome.SendKeys("#vm-create-playlist-dialog .create-playlist-section input[name=\"n\"]", keyword,speed:50);
             Thread.Sleep(5000);
+            if (chrome.Url.IndexOf("view_all_playlists") != -1)
+            {
+                if(createdEntries == 0)
+                {
+                    Log("Can't create new playlist!");
+                    MessageBox.Show("Can't create new playlist!");
+                    return false;
+                }
+                chrome.Navigate().Refresh();
+                createdEntries--;
+                goto CreatePlaylist;
+            }
             pllListTb.AppendText(Environment.NewLine + chrome.Url);
-            //Log(chrome.Url);
+            chrome.Wait("#owner-container #button", 20);
             chrome.Click("#owner-container #button");
             if (chrome.Url.IndexOf("disable_polymer") == -1)
             {
@@ -115,14 +139,26 @@ namespace Youtube_PLL
             }
 
             Thread.Sleep(1500);
+            chrome.Wait("#gh-playlist-add-video", 20);
+            Log("Add videos to playlist");
+        OpenIframe:
             chrome.Click("#gh-playlist-add-video");
-            chrome.Wait("iframe.picker-frame", 20);
+            bool waitIframe1 = chrome.Wait("iframe.picker-frame", 10);
+            if (!waitIframe1) goto OpenIframe;
             chrome.SwitchToFrame("iframe.picker-frame");
-            chrome.Wait("#doclist input", 0, "Displayed", 20 );
-            chrome.SendKeys("#doclist input", keyword);
+        SearchVideos:
+            chrome.Wait("#doclist input", 0, "Displayed", 10);
+            Log("Search videos to add playlist");
+            Clipboard.SetText(keyword);
+            chrome.FindElement("#doclist input").SendKeys(Keys.Control + "v" + Keys.Enter);
             Thread.Sleep(3000);
-            var check = chrome.Wait("table[role=\"listbox\"]", 20);
-            if (!check) MessageBox.Show("No videos found!");
+            var check = chrome.Wait("table[role=\"listbox\"] div[role=\"option\"]", 20);
+            if (!check)
+            {
+                Log("No videos found! Search again!");
+                goto SearchVideos;
+            }
+            //Log(chrome.CountElements("table[role=\"listbox\"] div[role=\"option\"]") + " videos found!");
             int numVideo = int.Parse(numVideoTb.Text);
             int count = 0;
             int ignore = 3;
@@ -130,7 +166,8 @@ namespace Youtube_PLL
             string description = "";
             string newTitle = "";
             var random = new Random();
-            while(count < numVideo) {
+            Log("Select videos to playlist");
+            while (count < numVideo) {
                 if (i>10 && ignore > 0)
                 {
                     int rand = random.Next(i, 100);
@@ -141,37 +178,57 @@ namespace Youtube_PLL
                         continue;
                     }
                 }
-                chrome.Click("table[role=\"listbox\"] div[role=\"option\"]", i);
-                var id = chrome.FindElements("table[role=\"listbox\"] div[role=\"option\"]")[i].GetAttribute("aria-labelledby");
+                int nth = 3 - ignore;
+                chrome.Click("table[role=\"listbox\"] div[role=\"option\"][aria-checked=\"false\"]", nth);
+                var id = chrome.FindElements("table[role=\"listbox\"] div[role=\"option\"][aria-checked=\"false\"]")[nth].GetAttribute("aria-labelledby");
                 if (count <= int.Parse(descriptionTb.Text))
                     description += chrome.getText("table[role=\"listbox\"] div[role=\"option\"] div[id=\"" + id + "\"]") + Environment.NewLine;
+                if (i == 0)
+                    newTitle = chrome.getText("table[role=\"listbox\"] div[role=\"option\"] div[id=\"" + id + "\"]");
                 if (i == pllCreated)
                     newTitle = chrome.getText("table[role=\"listbox\"] div[role=\"option\"] div[id=\"" + id + "\"]");
                 count++;
-                if (i % 10 == 0) chrome.Scroll();
+                if (i > 0 && i % 50 == 0) Thread.Sleep(4500);
                 Thread.Sleep(500);
                 i++;
-                continue;
             }
-            chrome.Click("#doclist [role=\"button\"][id=\"picker:ap:2\"]");
+        AddVideo:
+            bool waitAddVideos = chrome.Wait("#doclist [role=\"button\"][id=\"picker:ap:2\"]", 0, "Enabled", 20);
+            if(!waitAddVideos)
+            {
+                Log("Can't add videos to playlist.");
+                chrome.Click("[role=\"button\"][data-tooltip=\"Close\"]");
+            }
+            else
+            {
+                chrome.Click("#doclist [role=\"button\"][id=\"picker:ap:2\"]");
+            }
+
+            if(chrome.Wait("[role=\"button\"][data-tooltip=\"Close\"]", 2))
+            {
+                goto AddVideo;
+            }
+
             Thread.Sleep(3000);
             chrome.SwitchToDefaultContent();
+            Log("Change title playlist: " + newTitle);
             chrome.Click(".pl-header-title");
-            Clipboard.SetText(newTitle);
+            chrome.Wait("input[name=\"playlist_title\"]", 0, "Displayed", 10);
             chrome.FindElement("input[name=\"playlist_title\"]").Clear();
-            chrome.FindElement("input[name=\"playlist_title\"]").SendKeys(Keys.Control + "v");
-            chrome.FindElement("input[name=\"playlist_title\"]").SendKeys(Keys.Enter);
-            //chrome.SendKeys("input[name=\"playlist_title\"]", newTitle);
+            Clipboard.SetText(newTitle);
+            chrome.FindElement("input[name=\"playlist_title\"]").SendKeys(Keys.Control + "v" + Keys.Tab);
             Thread.Sleep(3000);
+            Log("Change description playlist");
             chrome.Click(".pl-header-add-description-button");
+            chrome.Wait(".pl-header-description-editor-form textarea", 0, "Displayed", 10);
             Clipboard.SetText(description);
-            chrome.FindElement(".pl-header-description-editor-form textarea").SendKeys(Keys.Control + "v");
-            //chrome.SendKeys(".pl-header-description-editor-form textarea", description, isSubmit:false);
+            chrome.FindElement(".pl-header-description-editor-form textarea").SendKeys(Keys.Control + "v" + Keys.Tab);
             Thread.Sleep(1000);
             chrome.Click("#playlist-settings-editor button");
-            Thread.Sleep(1500);
+            chrome.Wait("select.playlist-video-order-input[name=\"sort_order\"]", 0, "Displayed", 10);
             chrome.Click("select.playlist-video-order-input[name=\"sort_order\"]");
             chrome.Click("select.playlist-video-order-input[name=\"sort_order\"] option[value=\"3\"]");
+            chrome.Wait("button.save-button", 0, "Enabled", 10);
             chrome.Click("button.save-button");
             Thread.Sleep(3000);
             chrome.Click("#playlist-settings-editor button");
@@ -180,30 +237,69 @@ namespace Youtube_PLL
             chrome.Click("select.playlist-video-order-input[name=\"sort_order\"] option[value=\"0\"]");
             Thread.Sleep(1000);
             chrome.Click("input[name=\"add_to_top\"]");
+            if (canAddVideoCb.Checked)
+            {
+                chrome.Click("[data-uix-tabs-target-id=\"collaboration-settings\"]");
+                Thread.Sleep(500);
+                chrome.Click("#open-to-contributions");
+            }
+            chrome.Wait("button.save-button", 0, "Enabled", 20);
             chrome.Click("button.save-button");
             Thread.Sleep(3000);
             if (!string.IsNullOrEmpty(videoId))
             {
                 string videoUrl = "https://www.youtube.com/watch?v=" + videoId;
+                Log("Add your video to playlist");
+            AddYourVideo:
+                chrome.Wait("#gh-playlist-add-video", 10);
                 chrome.Click("#gh-playlist-add-video");
-                chrome.Wait("iframe.picker-frame", 10);
+                bool waitIframe = chrome.Wait("iframe.picker-frame", 10);
+                if (!waitIframe) goto AddYourVideo;
+
                 chrome.SwitchToFrame("iframe.picker-frame");
-                chrome.TryClick("#doclist [id=\":6\"]");
-                chrome.Wait("#doclist input",1, "Displayed" ,10);
+            OpenTab:
+                chrome.Click("#doclist [role=\"tab\"]", 1);
+                bool waitInput = chrome.Wait("#doclist input", 1, "Displayed", 10);
+                if(!waitInput) goto OpenTab;
+                int searchEntries = 5;
+            SearchVideo:
                 Clipboard.SetText(videoUrl);
-                chrome.FindElements("#doclist input")[1].SendKeys(Keys.Control + "v");
+                chrome.FindElements("#doclist input")[1].SendKeys(Keys.Control + "v" + Keys.Enter);
                 Thread.Sleep(3000);
-                chrome.Click("#doclist [role=\"button\"][id=\"picker:ap:2\"]");
+                check = chrome.Wait("#doclist iframe",10);
+                if (!check)
+                {
+                    if (searchEntries == 0)
+                    {
+                        Log("Can't search your video!");
+                        MessageBox.Show("Can't search your video!");
+                        chrome.Click("[role=\"button\"][data-tooltip=\"Close\"]");
+                    }
+                    else
+                    {
+                        searchEntries--;
+                        chrome.FindElements("#doclist input")[1].Clear();
+                        goto SearchVideo;
+                    }
+                }
+                else
+                {
+                    chrome.Wait("#doclist [role=\"button\"][id=\"picker:ap:2\"]", 0, "Enabled", 10);
+                    chrome.Click("#doclist [role=\"button\"][id=\"picker:ap:2\"]");
+                }
                 Thread.Sleep(3000);
                 chrome.SwitchToDefaultContent();
-                chrome.Wait("[data-video-id=\"" + videoId + "\"]", 10);
-                Log(chrome.CountElements("[data-video-id=\"" + videoId + "\"] td.yt-uix-dragdrop-drag-handle"));
-                Log(chrome.CountElements("#pl-video-table tr"));
-                chrome.DragAndDrop("[data-video-id=\""+videoId+"\"] td.yt-uix-dragdrop-drag-handle", "#pl-video-table tr", (int.Parse(videoPosTb.Text) - 1));
+                bool found = chrome.Wait("[data-video-id=\"" + videoId + "\"]", 10);
+                if (found)
+                {
+                    Log("Move your video to your position in playlist");
+                    chrome.DragAndDrop("[data-video-id=\"" + videoId + "\"] td.yt-uix-dragdrop-drag-handle", "#pl-video-table tr", (int.Parse(videoPosTb.Text) - 1));
+                }
                 Thread.Sleep(3000);
             }
-
+            Log("Create Playlist Successfully!");
             pllCreated++;
+            return true;
         }
 
         private void OpenProfile()
@@ -223,6 +319,7 @@ namespace Youtube_PLL
                         }
                         catch (Exception e)
                         {
+                            Log(e.Message);
                             MessageBox.Show(e.Message);
                         }
                     }));
@@ -280,6 +377,24 @@ namespace Youtube_PLL
             {
                 profileLb.Text = folderBrowserDialog1.SelectedPath;
             }
+        }
+
+        private void Main_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Process[] bProcess = Process.GetProcessesByName("chromedriver");
+            if (bProcess.Length > 0)
+            {
+                foreach (var proc in bProcess)
+                {
+                    try
+                    {
+                        proc.Kill();
+                    }
+                    catch { }
+                }
+                Thread.Sleep(1000);
+            }
+            Environment.Exit(Environment.ExitCode);
         }
     }
 }
