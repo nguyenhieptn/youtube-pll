@@ -108,8 +108,10 @@ namespace Youtube_PLL
 
         private bool CreateOnePlaylist(Chrome chrome, string keyword, string videoId)
         {
-            chrome.GoToURL("https://www.youtube.com/view_all_playlists");
-            chrome.Wait("#vm-playlist-div", 20);
+        StartCreate:
+            chrome.GoToURL("https://www.youtube.com/view_all_playlists", "view_all_playlists");
+            bool waitCreate = chrome.Wait("#vm-playlist-div", 10);
+            if (!waitCreate) goto StartCreate;
             int createdEntries = 5;
         CreatePlaylist:
             Log("Create new playlist");
@@ -147,10 +149,22 @@ namespace Youtube_PLL
             if (!waitIframe1) goto OpenIframe;
             chrome.SwitchToFrame("iframe.picker-frame");
         SearchVideos:
-            chrome.Wait("#doclist input", 0, "Displayed", 10);
+            bool waitSearch = chrome.Wait("#doclist input", 0, "Displayed", 10);
+            if (!waitSearch)
+            {
+                chrome.Click("[role=\"button\"][data-tooltip=\"Close\"]");
+                chrome.SwitchToDefaultContent();
+                goto OpenIframe;
+            }
             Log("Search videos to add playlist");
+        InsertKeyword:
             Clipboard.SetText(keyword);
             chrome.FindElement("#doclist input").SendKeys(Keys.Control + "v" + Keys.Enter);
+            if(chrome.getText("#doclist input") != keyword)
+            {
+                chrome.FindElement("#doclist input").Clear();
+                goto InsertKeyword;
+            }
             Thread.Sleep(3000);
             var check = chrome.Wait("table[role=\"listbox\"] div[role=\"option\"]", 20);
             if (!check)
@@ -168,7 +182,7 @@ namespace Youtube_PLL
             var random = new Random();
             Log("Select videos to playlist");
             while (count < numVideo) {
-                if (i>10 && ignore > 0)
+                if (i>20 && ignore > 0)
                 {
                     int rand = random.Next(i, 100);
                     if (rand % 9 > 3)
@@ -227,13 +241,15 @@ namespace Youtube_PLL
             chrome.Click("#playlist-settings-editor button");
             chrome.Wait("select.playlist-video-order-input[name=\"sort_order\"]", 0, "Displayed", 10);
             chrome.Click("select.playlist-video-order-input[name=\"sort_order\"]");
+            Thread.Sleep(500);
             chrome.Click("select.playlist-video-order-input[name=\"sort_order\"] option[value=\"3\"]");
             chrome.Wait("button.save-button", 0, "Enabled", 10);
             chrome.Click("button.save-button");
             Thread.Sleep(3000);
             chrome.Click("#playlist-settings-editor button");
-            Thread.Sleep(1500);
+            chrome.Wait("select.playlist-video-order-input[name=\"sort_order\"]", 0, "Displayed", 10);
             chrome.Click("select.playlist-video-order-input[name=\"sort_order\"]");
+            Thread.Sleep(500);
             chrome.Click("select.playlist-video-order-input[name=\"sort_order\"] option[value=\"0\"]");
             Thread.Sleep(1000);
             chrome.Click("input[name=\"add_to_top\"]");

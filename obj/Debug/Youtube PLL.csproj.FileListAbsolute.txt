@@ -15,4 +15,3 @@ D:\JaxTeam\Youtube PLL\bin\Debug\WebDriver.dll
 D:\JaxTeam\Youtube PLL\bin\Debug\WebDriver.xml
 D:\JaxTeam\Youtube PLL\bin\Debug\Newtonsoft.Json.dll
 D:\JaxTeam\Youtube PLL\bin\Debug\Newtonsoft.Json.xml
-D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.csprojAssemblyReference.cache
