@@ -1,0 +1,18 @@
+D:\JaxTeam\Youtube PLL\bin\Release\Youtube PLL.exe.config
+D:\JaxTeam\Youtube PLL\bin\Release\Youtube PLL.exe
+D:\JaxTeam\Youtube PLL\bin\Release\Youtube PLL.pdb
+D:\JaxTeam\Youtube PLL\bin\Release\MetroFramework.Design.dll
+D:\JaxTeam\Youtube PLL\bin\Release\MetroFramework.dll
+D:\JaxTeam\Youtube PLL\bin\Release\MetroFramework.Fonts.dll
+D:\JaxTeam\Youtube PLL\bin\Release\Newtonsoft.Json.dll
+D:\JaxTeam\Youtube PLL\bin\Release\WebDriver.dll
+D:\JaxTeam\Youtube PLL\bin\Release\Newtonsoft.Json.xml
+D:\JaxTeam\Youtube PLL\bin\Release\WebDriver.xml
+D:\JaxTeam\Youtube PLL\obj\Release\Youtube PLL.csprojAssemblyReference.cache
+D:\JaxTeam\Youtube PLL\obj\Release\Youtube_PLL.Main.resources
+D:\JaxTeam\Youtube PLL\obj\Release\Youtube_PLL.Properties.Resources.resources
+D:\JaxTeam\Youtube PLL\obj\Release\Youtube PLL.csproj.GenerateResource.cache
+D:\JaxTeam\Youtube PLL\obj\Release\Youtube PLL.csproj.CoreCompileInputs.cache
+D:\JaxTeam\Youtube PLL\obj\Release\Youtube PLL.csproj.CopyComplete
+D:\JaxTeam\Youtube PLL\obj\Release\Youtube PLL.exe
+D:\JaxTeam\Youtube PLL\obj\Release\Youtube PLL.pdb

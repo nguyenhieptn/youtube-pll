@@ -1,17 +1,18 @@
-D:\JaxTeam\Youtube PLL\bin\Debug\Youtube PLL.exe.config
 D:\JaxTeam\Youtube PLL\bin\Debug\Youtube PLL.exe
+D:\JaxTeam\Youtube PLL\bin\Debug\MetroFramework.dll
+D:\JaxTeam\Youtube PLL\bin\Debug\MetroFramework.Fonts.dll
+D:\JaxTeam\Youtube PLL\bin\Debug\Newtonsoft.Json.dll
+D:\JaxTeam\Youtube PLL\bin\Debug\WebDriver.dll
+D:\JaxTeam\Youtube PLL\bin\Debug\Youtube PLL.exe.config
 D:\JaxTeam\Youtube PLL\bin\Debug\Youtube PLL.pdb
+D:\JaxTeam\Youtube PLL\bin\Debug\MetroFramework.Design.dll
+D:\JaxTeam\Youtube PLL\bin\Debug\Newtonsoft.Json.xml
+D:\JaxTeam\Youtube PLL\bin\Debug\WebDriver.xml
+D:\JaxTeam\Youtube PLL\obj\Debug\Youtube_PLL.Main.resources
 D:\JaxTeam\Youtube PLL\obj\Debug\Youtube_PLL.Properties.Resources.resources
 D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.csproj.GenerateResource.cache
 D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.csproj.CoreCompileInputs.cache
+D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.csproj.CopyComplete
 D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.exe
 D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.pdb
-D:\JaxTeam\Youtube PLL\bin\Debug\MetroFramework.Design.dll
-D:\JaxTeam\Youtube PLL\bin\Debug\MetroFramework.dll
-D:\JaxTeam\Youtube PLL\bin\Debug\MetroFramework.Fonts.dll
-D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.csproj.CopyComplete
-D:\JaxTeam\Youtube PLL\obj\Debug\Youtube_PLL.Main.resources
-D:\JaxTeam\Youtube PLL\bin\Debug\WebDriver.dll
-D:\JaxTeam\Youtube PLL\bin\Debug\WebDriver.xml
-D:\JaxTeam\Youtube PLL\bin\Debug\Newtonsoft.Json.dll
-D:\JaxTeam\Youtube PLL\bin\Debug\Newtonsoft.Json.xml
+D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.csprojAssemblyReference.cache

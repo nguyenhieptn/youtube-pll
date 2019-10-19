@@ -20,40 +20,10 @@ class Chrome
     private bool isClean;
     private Actions actions;
 
-    public Chrome(bool clear = false)
-    {
-        string chromeDir = Environment.CurrentDirectory + @"\Chrome";
-        if (clear) ClearChrome(chromeDir);
-        SetServices();
-        SetOptions(chromeDir);
-        Driver = new ChromeDriver(Services, Options);
-        Js = (IJavaScriptExecutor)Driver;
-        actions = new Actions(Driver);
-    }
 
-    public Chrome(string directory, bool clear = false)
+    public Chrome(string directory = null, string useragent = null, MyProxy proxy = null, bool clear = false)
     {
-        if (clear) ClearChrome(directory);
-        SetServices();
-        SetOptions(directory);
-        Driver = new ChromeDriver(Services, Options);
-        Js = (IJavaScriptExecutor)Driver;
-        actions = new Actions(Driver);
-    }
-
-    public Chrome(string directory, string useragent, bool clear = false)
-    {
-        if(clear) ClearChrome(directory);
-        SetServices();
-        SetOptions(directory, useragent);
-        Driver = new ChromeDriver(Services, Options);
-        Js = (IJavaScriptExecutor)Driver;
-        actions = new Actions(Driver);
-    }
-
-    public Chrome(string directory, string useragent, string proxy, bool clear = false)
-    {
-        ClearChrome(directory);
+        //ClearChrome(directory);
         SetServices();
         SetOptions(directory, useragent, proxy);
         Driver = new ChromeDriver(Services, Options);
@@ -182,7 +152,7 @@ class Chrome
         Services.HideCommandPromptWindow = true;
     }
 
-    void SetOptions(string chromeDir = null, string useragent = null, string proxy = null)
+    void SetOptions(string chromeDir = null, string useragent = null, MyProxy proxy = null)
     {
         if (string.IsNullOrEmpty(useragent))
         {
@@ -197,7 +167,6 @@ class Chrome
         Options.AddArgument("--disable-gpu");
         Options.AddArgument("--disable-popup-blocking");
         Options.AddArgument("--disable-default-apps");
-        //Options.AddArgument("--blink-settings=imagesEnabled=false");
         Options.AddExcludedArgument("enable-automation");
         Options.AddAdditionalCapability("useAutomationExtension", false);
         Options.AddArgument("--disable-infobars");
@@ -205,12 +174,15 @@ class Chrome
         {
             Options.AddArgument("--user-agent=" + useragent);
         }
-        if (!string.IsNullOrEmpty(proxy))
-        {
-            Options.AddArgument("--proxy-server="+ proxy);
-            Options.AddArgument("ignore-certificate-errors");
-        }
         Options.AddArgument("user-data-dir=" + chromeDir);
+        string ext = "--load-extension=";
+        if (proxy != null)
+        {
+            ConfigExt(proxy);
+            Options.AddArgument("--proxy-server=" + proxy.host + ":" + proxy.port);
+            ext += Environment.CurrentDirectory + @"\Extensions\Proxy";
+        }
+        Options.AddArgument(ext);
     }
 
     public void OpenNewTab(bool switchTo = true)
@@ -578,6 +550,17 @@ class Chrome
         var elmTarget = Driver.FindElements(By.CssSelector(target))[pos];
         actions.ClickAndHold(elmSource).MoveToElement(elmTarget,0,0, MoveToElementOffsetOrigin.Center).Release().Build().Perform();
         actions = new Actions(Driver);
+    }
+
+    private void ConfigExt(MyProxy proxy)
+    {
+        string config = "SCHEME = \"" + proxy.schema + "\"; HOST = \"" + proxy.host + "\"; PORT = \"" + proxy.port + "\";";
+        if (!string.IsNullOrEmpty(proxy.username))
+            config += "USERNAME = \"" + proxy.username + "\";";
+        if (!string.IsNullOrEmpty(proxy.password))
+            config += "PASSWORD = \"" + proxy.password + "\";";
+        File.WriteAllText(Environment.CurrentDirectory + @"/Extensions/Proxy/config.js", config);
+        Thread.Sleep(1000);
     }
 }
 
