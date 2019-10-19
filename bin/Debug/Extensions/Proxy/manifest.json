@@ -1,0 +1,23 @@
+{
+    "version": "1.0.0",
+    "manifest_version": 2,
+    "name": "Chrome Proxy",
+    "permissions": [
+        "proxy",
+        "tabs",
+        "unlimitedStorage",
+        "storage",
+        "<all_urls>",
+        "webRequest",
+        "webRequestBlocking"
+    ],
+    "background": {
+        "scripts": ["config.js","background.js"]
+    },
+	"icons": {
+		"16": "/icon_16.png",
+		"48": "/icon_48.png",
+		"128": "/icon_128.png"
+	},
+    "minimum_chrome_version":"22.0.0"
+}
