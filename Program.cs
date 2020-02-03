@@ -16,7 +16,8 @@ namespace Youtube_PLL
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Main());
+            //Application.Run(new Main());
+            Application.Run(new Start(Marchine.ID));
         }
     }
 }

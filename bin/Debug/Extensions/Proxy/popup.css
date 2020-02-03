@@ -1,0 +1,16 @@
+.align-center{
+    text-align: center;
+}
+#cookies{
+    width:100%;
+    padding: 5px;
+    border: 1px solid #77b822;
+    border-radius: 5px;
+}
+#import, #copy{
+    padding: 10px 20px;
+    margin: 10px;
+    background: #50B83C;
+    border: 1px solid #77b822;
+    border-radius: 5px;
+}
