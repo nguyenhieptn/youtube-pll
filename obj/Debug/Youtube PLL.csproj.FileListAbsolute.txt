@@ -15,4 +15,3 @@ D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.csproj.CopyComplete
 D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.exe
 D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.pdb
 D:\JaxTeam\Youtube PLL\obj\Debug\Youtube_PLL.Start.resources
-D:\JaxTeam\Youtube PLL\obj\Debug\Youtube PLL.csprojAssemblyReference.cache

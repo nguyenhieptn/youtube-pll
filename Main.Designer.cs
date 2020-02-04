@@ -81,13 +81,13 @@
             this.metroTabPage2 = new MetroFramework.Controls.MetroTabPage();
             this.playlistTable = new System.Windows.Forms.DataGridView();
             this.keyword = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.createdAt = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.profilesTab = new MetroFramework.Controls.MetroTabPage();
-            this.profileGrid = new MetroFramework.Controls.MetroGrid();
             this.channelIdDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.playlistIdDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.profileDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.createdAt = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.playlistBindingSource = new System.Windows.Forms.BindingSource(this.components);
+            this.profilesTab = new MetroFramework.Controls.MetroTabPage();
+            this.profileGrid = new MetroFramework.Controls.MetroGrid();
             this.name = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.folder = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.open = new System.Windows.Forms.DataGridViewImageColumn();
@@ -97,9 +97,9 @@
             this.metroTabPage3.SuspendLayout();
             this.metroTabPage2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.playlistTable)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playlistBindingSource)).BeginInit();
             this.profilesTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.profileGrid)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.playlistBindingSource)).BeginInit();
             this.SuspendLayout();
             // 
             // metroLabel7
@@ -148,7 +148,7 @@
             this.tabs.MinimumSize = new System.Drawing.Size(794, 508);
             this.tabs.Multiline = true;
             this.tabs.Name = "tabs";
-            this.tabs.SelectedIndex = 4;
+            this.tabs.SelectedIndex = 0;
             this.tabs.Size = new System.Drawing.Size(794, 508);
             this.tabs.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabs.TabIndex = 0;
@@ -272,7 +272,7 @@
             this.stopBtn.FlatAppearance.BorderSize = 0;
             this.stopBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.stopBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.stopBtn.Location = new System.Drawing.Point(597, 11);
+            this.stopBtn.Location = new System.Drawing.Point(619, 11);
             this.stopBtn.Name = "stopBtn";
             this.stopBtn.Size = new System.Drawing.Size(159, 75);
             this.stopBtn.TabIndex = 13;
@@ -291,7 +291,7 @@
             this.createPllBtn.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.createPllBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.createPllBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.createPllBtn.Location = new System.Drawing.Point(411, 11);
+            this.createPllBtn.Location = new System.Drawing.Point(426, 11);
             this.createPllBtn.Name = "createPllBtn";
             this.createPllBtn.Size = new System.Drawing.Size(159, 75);
             this.createPllBtn.TabIndex = 12;
@@ -451,7 +451,7 @@
             this.logRtb.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.logRtb.Location = new System.Drawing.Point(396, 99);
             this.logRtb.Name = "logRtb";
-            this.logRtb.Size = new System.Drawing.Size(377, 345);
+            this.logRtb.Size = new System.Drawing.Size(382, 345);
             this.logRtb.TabIndex = 30;
             this.logRtb.Text = "";
             this.logRtb.WordWrap = false;
@@ -920,12 +920,37 @@
             this.keyword.HeaderText = "Keyword";
             this.keyword.Name = "keyword";
             // 
+            // channelIdDataGridViewTextBoxColumn
+            // 
+            this.channelIdDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.channelIdDataGridViewTextBoxColumn.DataPropertyName = "channelId";
+            this.channelIdDataGridViewTextBoxColumn.HeaderText = "Channel ID";
+            this.channelIdDataGridViewTextBoxColumn.Name = "channelIdDataGridViewTextBoxColumn";
+            // 
+            // playlistIdDataGridViewTextBoxColumn
+            // 
+            this.playlistIdDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.playlistIdDataGridViewTextBoxColumn.DataPropertyName = "playlistId";
+            this.playlistIdDataGridViewTextBoxColumn.HeaderText = "Playlist ID";
+            this.playlistIdDataGridViewTextBoxColumn.Name = "playlistIdDataGridViewTextBoxColumn";
+            // 
+            // profileDataGridViewTextBoxColumn
+            // 
+            this.profileDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+            this.profileDataGridViewTextBoxColumn.DataPropertyName = "profile";
+            this.profileDataGridViewTextBoxColumn.HeaderText = "Profile";
+            this.profileDataGridViewTextBoxColumn.Name = "profileDataGridViewTextBoxColumn";
+            // 
             // createdAt
             // 
             this.createdAt.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
             this.createdAt.DataPropertyName = "createdAt";
             this.createdAt.HeaderText = "Created At";
             this.createdAt.Name = "createdAt";
+            // 
+            // playlistBindingSource
+            // 
+            this.playlistBindingSource.DataSource = typeof(Youtube_PLL.Playlist);
             // 
             // profilesTab
             // 
@@ -990,31 +1015,6 @@
             this.profileGrid.Size = new System.Drawing.Size(783, 466);
             this.profileGrid.TabIndex = 2;
             // 
-            // channelIdDataGridViewTextBoxColumn
-            // 
-            this.channelIdDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.channelIdDataGridViewTextBoxColumn.DataPropertyName = "channelId";
-            this.channelIdDataGridViewTextBoxColumn.HeaderText = "Channel ID";
-            this.channelIdDataGridViewTextBoxColumn.Name = "channelIdDataGridViewTextBoxColumn";
-            // 
-            // playlistIdDataGridViewTextBoxColumn
-            // 
-            this.playlistIdDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.playlistIdDataGridViewTextBoxColumn.DataPropertyName = "playlistId";
-            this.playlistIdDataGridViewTextBoxColumn.HeaderText = "Playlist ID";
-            this.playlistIdDataGridViewTextBoxColumn.Name = "playlistIdDataGridViewTextBoxColumn";
-            // 
-            // profileDataGridViewTextBoxColumn
-            // 
-            this.profileDataGridViewTextBoxColumn.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-            this.profileDataGridViewTextBoxColumn.DataPropertyName = "profile";
-            this.profileDataGridViewTextBoxColumn.HeaderText = "Profile";
-            this.profileDataGridViewTextBoxColumn.Name = "profileDataGridViewTextBoxColumn";
-            // 
-            // playlistBindingSource
-            // 
-            this.playlistBindingSource.DataSource = typeof(Youtube_PLL.Playlist);
-            // 
             // name
             // 
             this.name.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
@@ -1062,9 +1062,9 @@
             this.metroTabPage3.PerformLayout();
             this.metroTabPage2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.playlistTable)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.playlistBindingSource)).EndInit();
             this.profilesTab.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.profileGrid)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.playlistBindingSource)).EndInit();
             this.ResumeLayout(false);
 
         }

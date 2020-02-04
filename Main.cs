@@ -26,6 +26,7 @@ namespace Youtube_PLL
         string code;
         string machineId;
         bool licenseInvalid = true;
+        bool run = true;
         public Main(string email, string code, string machineId)
         {
             this.email = email;
@@ -43,44 +44,46 @@ namespace Youtube_PLL
 
         private void InitPlaylist()
         {
-            t2 = new Thread(new ThreadStart(() =>
+            ThreadStart ts = new ThreadStart(() =>
             {
-                bool isMulti = multiCb.Checked;
-                var path = profileLb.Text;
-                mainKeyword = KeywordTb.Text;
-                if(!string.IsNullOrEmpty(secondKeywordsTb.Text))
-                    sencondKeywords = secondKeywordsTb.Text.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).ToList();
-                if (sencondKeywords.Count > 0) multiKeywords = true;
-                sencondKeywords.Insert(0, mainKeyword);
-                if (!isMulti)
-                {
-                    if (!licenseInvalid) return;
-                    totalPlaylists = int.Parse(NumPllTb.Text);
-                    CreatePlaylist(path);
-                }
-                else
-                {
-                    var paths = Directory.GetDirectories(path).ToList();
-                    var stop = false;
+                if (!run) return;
+               bool isMulti = multiCb.Checked;
+               var path = profileLb.Text;
+               mainKeyword = KeywordTb.Text;
+               if (!string.IsNullOrEmpty(secondKeywordsTb.Text))
+                   sencondKeywords = secondKeywordsTb.Text.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None).ToList();
+               if (sencondKeywords.Count > 0) multiKeywords = true;
+               sencondKeywords.Insert(0, mainKeyword);
+               if (!isMulti)
+               {
+                   if (!licenseInvalid) return;
+                   totalPlaylists = int.Parse(NumPllTb.Text);
+                   CreatePlaylist(path);
+               }
+               else
+               {
+                   var paths = Directory.GetDirectories(path).ToList();
+                   var stop = false;
                     //string keyword;
                     while (!stop)
-                    {
-                        if (!licenseInvalid) return;
-                        if (sencondKeywords.Count == 0) break;
-                        if (string.IsNullOrEmpty(mainKeyword)) break;
-                        Log(paths.Count + " Profiles");
-                        totalPlaylists = paths.Count * int.Parse(NumPllTb.Text);
-                        Log(totalPlaylists + " Playlists");
-                        if (paths.Count() == 0) break;
-                        var p = paths.First();
-                        Log("Start Profile: "+p);
-                        paths.RemoveAt(0);
-                        if (path.Count() == 0) stop = true;
-                        CreatePlaylist(p);
-                        Thread.Sleep(5000);
-                    }
-                }
-            }));
+                   {
+                       if (!licenseInvalid) return;
+                       if (sencondKeywords.Count == 0) break;
+                       if (string.IsNullOrEmpty(mainKeyword)) break;
+                       Log(paths.Count + " Profiles");
+                       totalPlaylists = paths.Count * int.Parse(NumPllTb.Text);
+                       Log(totalPlaylists + " Playlists");
+                       if (paths.Count() == 0) break;
+                       var p = paths.First();
+                       Log("Start Profile: " + p);
+                       paths.RemoveAt(0);
+                       if (path.Count() == 0) stop = true;
+                       CreatePlaylist(p);
+                       Thread.Sleep(5000);
+                   }
+               }
+            });
+            t2 = new Thread(ts);
             t2.SetApartmentState(ApartmentState.STA);
             t2.Start();
         }
@@ -623,7 +626,7 @@ namespace Youtube_PLL
         public void Log(dynamic str)
         {
             str = JSON.Encode(str);
-            Console.WriteLine(str);
+            //Console.WriteLine(str);
             try
             {
                 logRtb.Invoke(new Action(() =>
@@ -641,8 +644,8 @@ namespace Youtube_PLL
             catch(Exception e)
             {
                 File.AppendAllText(Environment.CurrentDirectory + @"\log.txt", DateTime.Now.ToString("dd/MM/yy HH:mm:ss tt") + "\t" + e.Message + Environment.NewLine);
-                Console.WriteLine(e.Message);
-                Console.WriteLine("stop");
+                //Console.WriteLine(e.Message);
+                //Console.WriteLine("stop");
             }
         }
 
@@ -739,30 +742,43 @@ namespace Youtube_PLL
         {
             if (MessageBox.Show("Yes or No", "Stop your tool?", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
             {
-                if (t2 != null && t2.IsAlive)
-                    t2.Abort();
-                if (chrome != null)
+                try
                 {
-                    try
-                    {
-                        chrome.Close();
-                        chrome.Quit();
-                    }
-                    catch { }
-                }
-                Process[] bProcess = Process.GetProcessesByName("chromedriver");
-                if (bProcess.Length > 0)
-                {
-                    foreach (var proc in bProcess)
+
+                    if (t2 != null && t2.IsAlive)
                     {
                         try
                         {
-                            proc.Kill();
+                            t2.Abort();
                         }
                         catch { }
                     }
-                    Thread.Sleep(1000);
+
+                    if (chrome != null)
+                    {
+                        try
+                        {
+                            chrome.Close();
+                            chrome.Quit();
+                        }
+                        catch { }
+                    }
+
+                    Process[] bProcess = Process.GetProcessesByName("chromedriver");
+                    if (bProcess.Length > 0)
+                    {
+                        foreach (var proc in bProcess)
+                        {
+                            try
+                            {
+                                proc.Kill();
+                            }
+                            catch { }
+                        }
+                        Thread.Sleep(1000);
+                    }
                 }
+                catch { }
             }
         }
 
