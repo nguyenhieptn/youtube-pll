@@ -8,12 +8,13 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using Keys = OpenQA.Selenium.Keys;
+
 namespace Youtube_PLL
 {
     public class MyChrome
     {
         public IJavaScriptExecutor Js;
-        public IWebDriver Driver;
+        public ChromeDriver Driver;
         protected ChromeOptions Options;
         protected ChromeDriverService Services;
         protected WebDriverWait wait;
@@ -21,10 +22,10 @@ namespace Youtube_PLL
         protected Actions actions;
 
 
-        public MyChrome(string directory = null, string useragent = null, MyProxy proxy = null, bool clear = false)
+        public MyChrome(string directory = null, string useragent = null, MyProxy proxy = null, bool clear = false, bool auto = true)
         {
             SetServices();
-            SetOptions(directory, useragent, proxy);
+            SetOptions(directory, useragent, proxy, auto);
             Driver = new ChromeDriver(Services, Options);
             Js = (IJavaScriptExecutor)Driver;
             actions = new Actions(Driver);
@@ -151,30 +152,29 @@ namespace Youtube_PLL
             Services.HideCommandPromptWindow = true;
         }
 
-        void SetOptions(string chromeDir = null, string useragent = null, MyProxy proxy = null)
+        void SetOptions(string chromeDir = null, string useragent = null, MyProxy proxy = null, bool auto = true)
         {
-            //if (string.IsNullOrEmpty(useragent))
-            //{
-            //    useragent = UserAgent();
-            //}
             if (string.IsNullOrEmpty(chromeDir))
             {
                 chromeDir = Environment.CurrentDirectory + @"\Chrome";
             }
             Options = new ChromeOptions();
-            //Options.AddArgument("--no-sandbox");
-            //Options.AddArgument("--disable-gpu");
-            //Options.AddArgument("--disable-popup-blocking");
-            //Options.AddArgument("--disable-default-apps");
+
+            if (!auto)
+            {
+                Options.AddExcludedArgument("test-type");
+                Options.AddExcludedArgument("remote-debugging-port");
+                Options.AddExcludedArgument("ignore-certificate-errors");
+            }
+
             Options.AddExcludedArgument("enable-automation");
             Options.AddAdditionalCapability("useAutomationExtension", false);
             Options.AddArgument("--disable-infobars");
             Options.AddArgument("--hide-scrollbars");
-            //Options.AddArgument("ignore-certificate-errors");
-            //Options.AddArgument("headless");
+
             if (!string.IsNullOrEmpty(useragent))
             {
-                //Options.AddArgument("--user-agent=" + useragent);
+                //Options.AddArgument("--user-agent="+useragent);
             }
             Options.AddArgument("user-data-dir=" + chromeDir);
             string ext = "--load-extension=";

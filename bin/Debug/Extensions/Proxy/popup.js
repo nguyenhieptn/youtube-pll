@@ -11,15 +11,19 @@ document.querySelector("#import").addEventListener("click", function (e) {
     var cookies = document.querySelector("#cookies").value;
     if (cookies.length === 0) return false;
     let that = this;
+    that.innerHTML = "Importing";
     chrome.runtime.sendMessage({
         action: "importCk",
         cookies: cookies
     }, function (response) {
         if(response) {
-            that.innerHTML = "Imported";
             setTimeout(() => {
-                that.innerHTML = "Import";
-            }, 1500);
+                that.innerHTML = "Imported";
+                chrome.tabs.create({url: "https://www.youtube.com/?gl=VN&tab=k11"});
+                setTimeout(() => {                    
+                    that.innerHTML = "Import";
+                }, 1500);
+            }, 3000);            
         }
     });
 });

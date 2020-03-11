@@ -291,7 +291,7 @@
             this.createPllBtn.FlatAppearance.MouseDownBackColor = System.Drawing.Color.Transparent;
             this.createPllBtn.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.createPllBtn.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.createPllBtn.Location = new System.Drawing.Point(426, 11);
+            this.createPllBtn.Location = new System.Drawing.Point(425, 11);
             this.createPllBtn.Name = "createPllBtn";
             this.createPllBtn.Size = new System.Drawing.Size(159, 75);
             this.createPllBtn.TabIndex = 12;

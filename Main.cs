@@ -173,9 +173,11 @@ namespace Youtube_PLL
                 string newTitle = "";
                 string titleCreate = keyword;
                 if (multiKeywords) titleCreate = newTitle = (mainKeyword.Equals(keyword)) ? mainKeyword : mainKeyword + " || " + keyword;
+
                 chrome.Wait("#vm-create-playlist-dialog .create-playlist-section input[name=\"n\"]", 20);
-                chrome.FindElement("#vm-create-playlist-dialog .create-playlist-section input[name=\"n\"]").SendKeys(titleCreate);
-                chrome.FindElement("#vm-create-playlist-dialog .create-playlist-section input[name=\"n\"]").SendKeys(Keys.Enter);
+                var elm = chrome.FindElement("#vm-create-playlist-dialog .create-playlist-section input[name=\"n\"]");
+                elm.SendKeys(titleCreate);
+                elm.SendKeys(Keys.Enter);
                 Thread.Sleep(5000);
                 if (chrome.Url.IndexOf("view_all_playlists") != -1)
                 {
@@ -269,7 +271,13 @@ namespace Youtube_PLL
                         {
                             chrome.Wait("table[role=\"listbox\"] div[role=\"option\"][aria-checked=\"false\"]", ignore, "Count", 10);
                             id = chrome.FindElements("table[role=\"listbox\"] div[role=\"option\"][aria-checked=\"false\"]")[ignore].GetAttribute("aria-labelledby");
-                            chrome.FindElements("table[role=\"listbox\"] div[role=\"option\"][aria-checked=\"false\"]")[ignore].Click();
+                            var listbox = chrome.FindElements("table[role=\"listbox\"] div[role=\"option\"][aria-checked=\"false\"]");
+                            if(listbox.Count == ignore)
+                            {
+                                Log("No videos to select!");
+                                goto GetTitle;
+                            }
+                            listbox[ignore].Click();
                             if (count <= int.Parse(descriptionTb.Text))
                                 description += chrome.getText("table[role=\"listbox\"] div[role=\"option\"] div[id=\"" + id + "\"]") + Environment.NewLine;
                             count++;
@@ -561,7 +569,7 @@ namespace Youtube_PLL
             {
                 Log(e.Message);
                 //MessageBox.Show(e.Source);
-                return false;
+                return true;
             }
         }
 
@@ -587,9 +595,8 @@ namespace Youtube_PLL
                     {
                         try
                         {
-                            string useragent = "NokiaC3-00/5.0 (08.63) Profile/MIDP-2.1 Configuration/CLDC-1.1 Mozilla/5.0 AppleWebKit/420+ (KHTML, like Gecko) Safari/420+";
-                            MyChrome chrome = new MyChrome(p, proxy:proxy, useragent: useragent);
-                            chrome.GoToURL("https://www.youtube.com/");
+                            MyChrome chrome = new MyChrome(p, proxy:proxy, auto:false);
+                            chrome.GoToURL("https://youtube.com");
                         }
                         catch (Exception e)
                         {
@@ -603,9 +610,8 @@ namespace Youtube_PLL
             }
             else
             {
-                string useragent = "NokiaC3-00/5.0 (08.63) Profile/MIDP-2.1 Configuration/CLDC-1.1 Mozilla/5.0 AppleWebKit/420+ (KHTML, like Gecko) Safari/420+";
-                MyChrome chrome = new MyChrome(path, proxy:proxy, useragent: useragent);
-                chrome.GoToURL("https://www.youtube.com/");
+                MyChrome chrome = new MyChrome(path, proxy:proxy, auto: false);
+                chrome.GoToURL("https://youtube.com");
             }
 
         }

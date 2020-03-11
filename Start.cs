@@ -122,6 +122,7 @@ namespace Youtube_PLL
 
         private void Start_Load(object sender, EventArgs e)
         {
+            Properties.Settings.Default.Running = true;
             if (Properties.Settings.Default.Email != string.Empty)
             {
                 emailTb.Text = Properties.Settings.Default.Email;

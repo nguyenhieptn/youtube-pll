@@ -9,7 +9,8 @@
     "tabs",
     "unlimitedStorage",
     "storage",
-    "<all_urls>",
+    "*://*.youtube.com/*",
+    "*://*.google.com/*",
     "webRequest",
     "webRequestBlocking"
   ],
@@ -17,6 +18,13 @@
     "default_title": "Youtube PLL",
     "default_popup": "popup.html"
   },
+  "content_scripts": [{
+    "matches":[
+      "*://*.youtube.com/*",
+      "*://*.google.com/*"
+    ],
+    "js": ["content-scripts.js"]
+  }],
   "background": {
     "scripts": [
       "config.js",
